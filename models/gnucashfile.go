@@ -18,27 +18,24 @@ type xmlCountData struct {
 }
 
 type xmlAccount struct {
-	Name     string `xml:"name"`
-	ID       string `xml:"id"`
-	Type     string `xml:"type"`
-	ParentID string `xml:"parent"`
-	Parent   *xmlAccount
-	Children []*xmlAccount
+	Name      string `xml:"name"`
+	ID        string `xml:"id"`
+	Type      string `xml:"type"`
+	ParentID  string `xml:"parent"`
+	Commodity string `xml:"commodity>space"`
+	Parent    *xmlAccount
+	Children  []*xmlAccount
 }
 
 type xmlTransaction struct {
-	Num         string     `xml:"num"`
-	Description string     `xml:"description"`
-	DatePosted  string     `xml:"date-posted>date"`
-	Splits      []xmlSplit `xml:"splits>split"`
+	Num        string     `xml:"num"`
+	DatePosted string     `xml:"date-posted>date"`
+	Splits     []xmlSplit `xml:"splits>split"`
 }
 
 type xmlSplit struct {
-	ReconciledState string `xml:"reconciled-state"`
-	ReconcileDate   string `xml:"reconcile-date>date"`
-	Value           string `xml:"value"`
-	Account         string `xml:"account"`
-	Memo            string `xml:"memo"`
+	Value   string `xml:"value"`
+	Account string `xml:"account"`
 }
 
 func LoadFromFile(path string) (*Account, map[string]*Account, error) {
@@ -106,6 +103,12 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 			if se.Name.Local == "account" {
 				var xmlact xmlAccount
 				decoder.DecodeElement(&xmlact, &se)
+
+				// Skip Account templates used in schedule action
+				// See "<cmdty:space>template</cmdty:space>"
+				if xmlact.Commodity == "template" {
+					continue
+				}
 				actsRead++
 
 				// I hope Root Account is always the first account encountered
@@ -118,10 +121,9 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 				// Attach this node to the accounts tree
 				parent := index[xmlact.ParentID]
 				if parent == nil {
-					log.Printf("Account '%s' has no ParentID", xmlact.Name) // Template Root & ses fils ?
+					log.Printf("ParentID not found in index for Account '%s'", xmlact.Name)
 					continue
 				}
-				//act.Parent = parent
 				act := Account{ID: xmlact.ID, Name: xmlact.Name, Type: xmlact.Type, Parent: parent}
 				parent.Children = append(parent.Children, &act)
 
@@ -129,37 +131,34 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 				continue
 			}
 
-			// if se.Name.Local == "transaction" {
-			// 	var xtrn XMLTransaction
-			// 	decoder.DecodeElement(&xtrn, &se)
-			// 	trnsRead++
-			// 	for _, split := range xtrn.Splits {
-			// 		fmt.Println(split)
-			// 		fmt.Printf("%s;%s;%s;%s;%s;%s;%s;%s\n",
-			// 			xtrn.Num,
-			// 			xtrn.Description,
-			// 			xtrn.DatePosted,
-			// 			split.ReconciledState,
-			// 			split.ReconcileDate,
-			// 			split.Value,
-			// 			split.Account,
-			// 			split.Memo)
-			// 	}
-			// }
+			if se.Name.Local == "transaction" {
+				var xtrn xmlTransaction
+				decoder.DecodeElement(&xtrn, &se)
+				trnsRead++
+				for _, split := range xtrn.Splits {
+					act := index[split.Account]
+					if act == nil {
+						log.Printf("Account '%s' not found in index for transaction", split.Account)
+						continue
+					}
+					trn := Transaction{Num: xtrn.Num, Date: xtrn.DatePosted, Value: split.Value}
+					act.Transactions = append(act.Transactions, &trn)
+				}
+			}
 
 		}
 	}
 
 	if actsRead != actsExpected {
-		log.Printf("Read %d accounts when %d were expected\n", actsRead, actsExpected)
+		log.Printf("Read %d accounts when %d were expected", actsRead, actsExpected)
 	}
 	if trnsRead != trnsExpected {
-		log.Printf("Read %d transactions when %d were expected\n", trnsRead, trnsExpected)
+		log.Printf("Read %d transactions when %d were expected", trnsRead, trnsExpected)
 	}
 
 	t2 := time.Now()
 	duration := t2.Sub(t1)
-	log.Printf("Gnucash data loaded in %s", duration)
+	log.Printf("Gnucash data loaded in %s (%d accounts, %d transactions)", duration, actsRead, trnsRead)
 
 	return data, index, nil
 }

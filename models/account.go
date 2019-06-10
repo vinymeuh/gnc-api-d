@@ -4,11 +4,18 @@
 package models
 
 type Account struct {
-	ID       string     `json:"id"`
-	Name     string     `json:"name"`
-	Type     string     `json:"type"`
-	Parent   *Account   `json:"-"`
-	Children []*Account `json:"-"`
+	ID           string         `json:"id"`
+	Name         string         `json:"name"`
+	Type         string         `json:"type"`
+	Parent       *Account       `json:"-"`
+	Children     []*Account     `json:"-"`
+	Transactions []*Transaction `json:"-"`
+}
+
+type Transaction struct {
+	Num   string `json:"-"`
+	Date  string `json:"-"`
+	Value string `json:"-"`
 }
 
 type WalkAccountFunc func(act *Account) bool
