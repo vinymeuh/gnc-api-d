@@ -67,6 +67,8 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 	var trnsExpected int
 	var trnsRead int
 
+	rejected := make(map[string]int) // track rejected accounts and reject their transactions accordingly
+
 	t1 := time.Now()
 
 	decoder := xml.NewDecoder(r)
@@ -107,6 +109,7 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 				// Skip Account templates used in schedule action
 				// See "<cmdty:space>template</cmdty:space>"
 				if xmlact.Commodity == "template" {
+					rejected[xmlact.ID] = 1
 					continue
 				}
 				actsRead++
@@ -138,7 +141,9 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 				for _, split := range xtrn.Splits {
 					act := index[split.Account]
 					if act == nil {
-						log.Printf("Account '%s' not found in index for transaction", split.Account)
+						if rejected[split.Account] == 0 {
+							log.Printf("Account '%s' not found in index for transaction", split.Account)
+						}
 						continue
 					}
 					trn := Transaction{Num: xtrn.Num, Date: xtrn.DatePosted, Value: split.Value}
