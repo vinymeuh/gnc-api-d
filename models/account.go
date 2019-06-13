@@ -13,9 +13,9 @@ type Account struct {
 }
 
 type Transaction struct {
-	Num   string `json:"-"`
-	Date  string `json:"-"`
-	Value string `json:"-"`
+	Num   string  `json:"-"`
+	Date  string  `json:"-"` // YYYY-MM-DD
+	Value float64 `json:"-"`
 }
 
 type WalkAccountFunc func(act *Account) bool

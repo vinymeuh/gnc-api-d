@@ -9,6 +9,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -146,7 +148,11 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 						}
 						continue
 					}
-					trn := Transaction{Num: xtrn.Num, Date: xtrn.DatePosted, Value: split.Value}
+					trn := Transaction{
+						Num:   xtrn.Num,
+						Date:  strings.TrimSpace(strings.Split(xtrn.DatePosted, " ")[0]), // '2014-07-30 00:00:00 +0200', we keep only '2014-07-30'
+						Value: stringToFloat(split.Value),
+					}
 					act.Transactions = append(act.Transactions, &trn)
 				}
 			}
@@ -166,4 +172,11 @@ func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
 	log.Printf("Gnucash data loaded in %s (%d accounts, %d transactions)", duration, actsRead, trnsRead)
 
 	return data, index, nil
+}
+
+func stringToFloat(v string) float64 {
+	i := strings.Split(v, "/")
+	n, _ := strconv.ParseFloat(i[0], 10)
+	d, _ := strconv.ParseFloat(i[1], 10)
+	return n / d
 }
