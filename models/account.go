@@ -43,7 +43,7 @@ func (a *Account) WalkBFS(walkFunc WalkAccountFunc) []*Account {
 	return acts
 }
 
-func (a *Account) All() []*Account {
+func (a *Account) Descendants() []*Account {
 	return a.WalkBFS(func(act *Account) bool { return true })
 }
 

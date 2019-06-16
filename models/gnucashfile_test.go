@@ -16,7 +16,7 @@ func TestLoadGnuCashFile(t *testing.T) {
 		assert.Equal(t, 1, len(root), "Problem while retrieve the account of type ROOT")
 		assert.Equal(t, "Root Account", root[0].Name, "Problem while retrieve the Root Account")
 
-		alls := root[0].All()
+		alls := root[0].Descendants()
 		assert.Equal(t, len(index), len(alls), "accounts index is incoherent")
 
 		books := data.FindByName("Books")

@@ -23,7 +23,7 @@ func (ah *AccountsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	switch len(params) {
 	case 0:
-		acts = ah.Data.All()
+		acts = ah.Data.Descendants()
 	case 1:
 		if name := params.Get("name"); name != "" {
 			acts = ah.Data.FindByName(name)
