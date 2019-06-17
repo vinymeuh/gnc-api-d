@@ -3,6 +3,8 @@
 
 package models
 
+// Account is a node of the accounts hierarchy.
+// Each account has its own  list of transactions
 type Account struct {
 	ID           string         `json:"id"`
 	Name         string         `json:"name"`
@@ -12,6 +14,7 @@ type Account struct {
 	Transactions []*Transaction `json:"-"`
 }
 
+// Transaction keeps data for a transaction
 type Transaction struct {
 	Num   string  `json:"-"`
 	Date  string  `json:"-"` // YYYY-MM-DD
@@ -43,14 +46,17 @@ func (a *Account) WalkBFS(walkFunc WalkAccountFunc) []*Account {
 	return acts
 }
 
+// Descendants return the list of sub-accounts for an account
 func (a *Account) Descendants() []*Account {
 	return a.WalkBFS(func(act *Account) bool { return true })
 }
 
+// FindByName returns a list of accounts matching name
 func (a *Account) FindByName(name string) []*Account {
 	return a.WalkBFS(func(act *Account) bool { return act.Name == name })
 }
 
+// FindByType returns a list of accounts matching type
 func (a *Account) FindByType(atype string) []*Account {
 	return a.WalkBFS(func(act *Account) bool { return act.Type == atype })
 }
