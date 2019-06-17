@@ -40,6 +40,7 @@ type xmlSplit struct {
 	Account string `xml:"account"`
 }
 
+// LoadFromFile loads data from a GnuCash file compressed or not
 func LoadFromFile(path string) (*Account, map[string]*Account, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -51,16 +52,17 @@ func LoadFromFile(path string) (*Account, map[string]*Account, error) {
 	switch err {
 	case nil:
 		defer zr.Close()
-		return LoadFrom(zr)
+		return Load(zr)
 	case gzip.ErrHeader: // uncompressed file
 		f.Seek(0, 0)
-		return LoadFrom(f)
+		return Load(f)
 	default:
 		return nil, nil, err
 	}
 }
 
-func LoadFrom(r io.Reader) (*Account, map[string]*Account, error) {
+// Load loads GnuCash account hierarchy from a XML document
+func Load(r io.Reader) (*Account, map[string]*Account, error) {
 	var data *Account
 	var index map[string]*Account
 
