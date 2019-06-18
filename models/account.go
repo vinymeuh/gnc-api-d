@@ -3,6 +3,10 @@
 
 package models
 
+import (
+	"time"
+)
+
 // Account is a node of the accounts hierarchy.
 // Each account has its own  list of transactions
 type Account struct {
@@ -21,6 +25,7 @@ type Transaction struct {
 	Value float64 `json:"-"`
 }
 
+// WalkAccountFunc is the type of the function called for each account visited by WalkBFS
 type WalkAccountFunc func(act *Account) bool
 
 // WalkBFS traverses the tree of accounts using Breadth-first search algorithm.
@@ -59,4 +64,20 @@ func (a *Account) FindByName(name string) []*Account {
 // FindByType returns a list of accounts matching type
 func (a *Account) FindByType(atype string) []*Account {
 	return a.WalkBFS(func(act *Account) bool { return act.Type == atype })
+}
+
+// Balance returns the amount of the account
+func (a *Account) Balance(date string) float64 {
+
+	if date == "" {
+		date = time.Now().Format("2006-01-02")
+	}
+
+	var b float64
+	for _, t := range a.Transactions {
+		if t.Date <= date {
+			b = b + t.Value
+		}
+	}
+	return b
 }
