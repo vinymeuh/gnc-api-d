@@ -31,3 +31,8 @@ func TestLoadGnuCashFile(t *testing.T) {
 		assert.Equal(t, 30.05, trnBooks.Value, "Problem with 'Books' transaction value")
 	}
 }
+
+func TestLoadInvalidGnuCashFile(t *testing.T) {
+	_, _, err := LoadFromFile("gnucashfile_test.go")
+	assert.Error(t, err)
+}
