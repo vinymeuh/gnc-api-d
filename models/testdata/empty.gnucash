@@ -54,6 +54,7 @@
 <gnc:count-data cd:type="commodity">1</gnc:count-data>
 <gnc:count-data cd:type="account">64</gnc:count-data>
 <gnc:count-data cd:type="transaction">4</gnc:count-data>
+<gnc:count-data cd:type="schedxaction">1</gnc:count-data>
 <gnc:commodity version="2.0.0">
   <cmdty:space>CURRENCY</cmdty:space>
   <cmdty:id>EUR</cmdty:id>
@@ -952,6 +953,7 @@
     <cmdty:space>CURRENCY</cmdty:space>
     <cmdty:id>EUR</cmdty:id>
   </trn:currency>
+  <trn:num>CB</trn:num>
   <trn:date-posted>
     <ts:date>2019-06-10 10:59:00</ts:date>
   </trn:date-posted>
@@ -990,6 +992,7 @@
     <cmdty:space>CURRENCY</cmdty:space>
     <cmdty:id>EUR</cmdty:id>
   </trn:currency>
+  <trn:num>CB</trn:num>
   <trn:date-posted>
     <ts:date>2019-06-13 10:59:00</ts:date>
   </trn:date-posted>
@@ -1022,6 +1025,139 @@
     </trn:split>
   </trn:splits>
 </gnc:transaction>
+<gnc:template-transactions>
+<gnc:account version="2.0.0">
+  <act:name>Template Root</act:name>
+  <act:id type="guid">1fbf0112f12f4f3e815d752455d02230</act:id>
+  <act:type>ROOT</act:type>
+</gnc:account>
+<gnc:account version="2.0.0">
+  <act:name>d4654dce09ac45c4a92e06cdf36c899c</act:name>
+  <act:id type="guid">cb70eebb91cd47a3837ebcf0ae10f954</act:id>
+  <act:type>BANK</act:type>
+  <act:commodity>
+    <cmdty:space>template</cmdty:space>
+    <cmdty:id>template</cmdty:id>
+  </act:commodity>
+  <act:commodity-scu>1</act:commodity-scu>
+  <act:parent type="guid">1fbf0112f12f4f3e815d752455d02230</act:parent>
+</gnc:account>
+<gnc:transaction version="2.0.0">
+  <trn:id type="guid">bd287d10dfa641d29c20abb46919bd36</trn:id>
+  <trn:currency>
+    <cmdty:space>CURRENCY</cmdty:space>
+    <cmdty:id>EUR</cmdty:id>
+  </trn:currency>
+  <trn:date-posted>
+    <ts:date>2019-06-22 10:59:00</ts:date>
+  </trn:date-posted>
+  <trn:date-entered>
+    <ts:date>2019-06-22 07:55:16</ts:date>
+  </trn:date-entered>
+  <trn:description>Netflix</trn:description>
+  <trn:slots>
+    <slot>
+      <slot:key>date-posted</slot:key>
+      <slot:value type="gdate">
+        <gdate>2019-06-22</gdate>
+      </slot:value>
+    </slot>
+  </trn:slots>
+  <trn:splits>
+    <trn:split>
+      <split:id type="guid">e67f1f4a4ad9472aa31fc929a7b75b30</split:id>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>0/100</split:value>
+      <split:quantity>0/1</split:quantity>
+      <split:account type="guid">cb70eebb91cd47a3837ebcf0ae10f954</split:account>
+      <split:slots>
+        <slot>
+          <slot:key>sched-xaction</slot:key>
+          <slot:value type="frame">
+            <slot>
+              <slot:key>account</slot:key>
+              <slot:value type="guid">6536691459e4412fa4f182ba23562efe</slot:value>
+            </slot>
+            <slot>
+              <slot:key>credit-formula</slot:key>
+              <slot:value type="string"></slot:value>
+            </slot>
+            <slot>
+              <slot:key>credit-numeric</slot:key>
+              <slot:value type="numeric">0/1</slot:value>
+            </slot>
+            <slot>
+              <slot:key>debit-formula</slot:key>
+              <slot:value type="string">13</slot:value>
+            </slot>
+            <slot>
+              <slot:key>debit-numeric</slot:key>
+              <slot:value type="numeric">13/1</slot:value>
+            </slot>
+          </slot:value>
+        </slot>
+      </split:slots>
+    </trn:split>
+    <trn:split>
+      <split:id type="guid">eb510f63d35049d385978bbeec3cc301</split:id>
+      <split:reconciled-state>n</split:reconciled-state>
+      <split:value>0/100</split:value>
+      <split:quantity>0/1</split:quantity>
+      <split:account type="guid">cb70eebb91cd47a3837ebcf0ae10f954</split:account>
+      <split:slots>
+        <slot>
+          <slot:key>sched-xaction</slot:key>
+          <slot:value type="frame">
+            <slot>
+              <slot:key>account</slot:key>
+              <slot:value type="guid">108c1b3f78524e4ca429a428041d3bfe</slot:value>
+            </slot>
+            <slot>
+              <slot:key>credit-formula</slot:key>
+              <slot:value type="string">13</slot:value>
+            </slot>
+            <slot>
+              <slot:key>credit-numeric</slot:key>
+              <slot:value type="numeric">13/1</slot:value>
+            </slot>
+            <slot>
+              <slot:key>debit-formula</slot:key>
+              <slot:value type="string"></slot:value>
+            </slot>
+            <slot>
+              <slot:key>debit-numeric</slot:key>
+              <slot:value type="numeric">0/1</slot:value>
+            </slot>
+          </slot:value>
+        </slot>
+      </split:slots>
+    </trn:split>
+  </trn:splits>
+</gnc:transaction>
+</gnc:template-transactions>
+<gnc:schedxaction version="2.0.0">
+  <sx:id type="guid">d4654dce09ac45c4a92e06cdf36c899c</sx:id>
+  <sx:name>Netflix</sx:name>
+  <sx:enabled>y</sx:enabled>
+  <sx:autoCreate>n</sx:autoCreate>
+  <sx:autoCreateNotify>n</sx:autoCreateNotify>
+  <sx:advanceCreateDays>0</sx:advanceCreateDays>
+  <sx:advanceRemindDays>0</sx:advanceRemindDays>
+  <sx:instanceCount>1</sx:instanceCount>
+  <sx:start>
+    <gdate>2019-06-22</gdate>
+  </sx:start>
+  <sx:templ-acct type="guid">cb70eebb91cd47a3837ebcf0ae10f954</sx:templ-acct>
+  <sx:schedule>
+    <gnc:recurrence version="1.0.0">
+      <recurrence:mult>1</recurrence:mult>
+      <recurrence:period_type>month</recurrence:period_type>
+      <recurrence:start>
+        <gdate>2019-06-10</gdate>
+      </recurrence:start>
+    </gnc:recurrence>
+  </sx:schedule>
+</gnc:schedxaction>
 </gnc:book>
 </gnc-v2>
 
