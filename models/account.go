@@ -66,16 +66,26 @@ func (a *Account) FindByType(atype string) []*Account {
 	return a.WalkBFS(func(act *Account) bool { return act.Type == atype })
 }
 
-// Balance returns the amount of the account
-func (a *Account) Balance(date string) float64 {
+// BalanceOptions is the type used as input parameters for the Balance function
+type BalanceOptions struct {
+	From string
+	To   string
+	Type string
+}
 
-	if date == "" {
-		date = time.Now().Format("2006-01-02")
+// Balance returns the amount of the account
+func (a *Account) Balance(opts BalanceOptions) float64 {
+
+	if opts.To == "" {
+		opts.To = time.Now().Format("2006-01-02")
 	}
 
 	var b float64
 	for _, t := range a.Transactions {
-		if t.Date <= date {
+		if opts.Type != "" && t.Num != opts.Type {
+			continue
+		}
+		if t.Date >= opts.From && t.Date <= opts.To {
 			b = b + t.Value
 		}
 	}
