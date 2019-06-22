@@ -12,9 +12,12 @@ import (
 func TestLoadGnuCashFile(t *testing.T) {
 	data, err := LoadFromFile("testdata/empty.gnucash")
 	if assert.NoError(t, err) {
-		root := data.FindByType("ROOT")
-		assert.Equal(t, 1, len(root), "Problem while retrieve the account of type ROOT")
-		assert.Equal(t, "Root Account", root[0].Name, "Problem while retrieve the Root Account")
+		roots := data.FindByType("ROOT")
+		assert.Equal(t, 1, len(roots), "Problem while retrieve the account of type ROOT")
+		assert.Equal(t, "Root Account", roots[0].Name, "Problem while retrieve the Root Account")
+
+		root := data.FindByID(roots[0].ID)
+		assert.Equal(t, roots[0].ID, root.ID, "Problem with 'Books' account ID")
 
 		books := data.FindByName("Books")
 		assert.Equal(t, 1, len(books), "Problem while retrieve the account 'Books'")
