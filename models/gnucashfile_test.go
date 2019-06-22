@@ -36,3 +36,8 @@ func TestLoadInvalidGnuCashFile(t *testing.T) {
 	_, _, err := LoadFromFile("gnucashfile_test.go")
 	assert.Error(t, err)
 }
+
+func TestLoadNotExistingFile(t *testing.T) {
+	_, _, err := LoadFromFile("i_do_not_exist")
+	assert.Error(t, err)
+}
