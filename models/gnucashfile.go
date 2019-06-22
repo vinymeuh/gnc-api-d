@@ -65,16 +65,14 @@ func LoadFromFile(path string) (*Account, map[string]*Account, error) {
 // Load loads GnuCash account hierarchy from a XML document
 func Load(r io.Reader) (*Account, map[string]*Account, error) {
 	var root *Account
-	var index map[string]*Account
+	var actIndex map[string]*Account
 
 	type countData struct {
-		accounts     int
-		transactions int
+		acts int
+		trns int
 	}
 	var expected countData
 	var read countData
-
-	actTemplates := make(map[string]int) // track template accounts and reject their transactions accordingly
 
 	t1 := time.Now()
 
@@ -100,11 +98,11 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 
 				switch cd.Type {
 				case "account":
-					expected.accounts = cd.Value
+					expected.acts = cd.Value
 					// initialize accounts Index
-					index = make(map[string]*Account, expected.accounts)
+					actIndex = make(map[string]*Account, expected.acts)
 				case "transaction":
-					expected.transactions = cd.Value
+					expected.trns = cd.Value
 				}
 				continue
 			}
@@ -112,24 +110,20 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 			if se.Name.Local == "account" {
 				var xmlact xmlAccount
 				decoder.DecodeElement(&xmlact, &se)
-
-				// Skip Account templates used in schedule action
-				// See "<cmdty:space>template</cmdty:space>"
-				if xmlact.Commodity == "template" {
-					actTemplates[xmlact.ID] = 1
-					continue
-				}
-				read.accounts++
+				read.acts++
 
 				// I hope Root Account is always the first account encountered
-				if root == nil && xmlact.Type == "ROOT" && xmlact.Name == "Root Account" {
-					root = &Account{ID: xmlact.ID, Name: xmlact.Name, Type: xmlact.Type}
-					index[xmlact.ID] = root
-					continue
+				if root == nil {
+					if xmlact.Type == "ROOT" && xmlact.Name == "Root Account" {
+						root = &Account{ID: xmlact.ID, Name: xmlact.Name, Type: xmlact.Type}
+						actIndex[xmlact.ID] = root
+						continue
+					}
+					return root, actIndex, errors.New("Unable to initialize accounts hierarchy with Root Account")
 				}
 
 				// Attach this node to the accounts tree
-				parent := index[xmlact.ParentID]
+				parent := actIndex[xmlact.ParentID]
 				if parent == nil {
 					log.Printf("ParentID not found in index for Account '%s'", xmlact.Name)
 					continue
@@ -137,20 +131,18 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 				act := Account{ID: xmlact.ID, Name: xmlact.Name, Type: xmlact.Type, Parent: parent}
 				parent.Children = append(parent.Children, &act)
 
-				index[xmlact.ID] = &act
+				actIndex[xmlact.ID] = &act
 				continue
 			}
 
 			if se.Name.Local == "transaction" {
 				var xtrn xmlTransaction
 				decoder.DecodeElement(&xtrn, &se)
-				read.transactions++
+				read.trns++
 				for _, split := range xtrn.Splits {
-					act := index[split.Account]
+					act := actIndex[split.Account]
 					if act == nil {
-						if actTemplates[split.Account] == 0 {
-							log.Printf("Account '%s' not found in index for transaction", split.Account)
-						}
+						log.Printf("Account '%s' not found in index for transaction", split.Account)
 						continue
 					}
 					trn := Transaction{
@@ -162,24 +154,29 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 				}
 			}
 
+			// Skip all accounts and transactions templates used in schedule action
+			if se.Name.Local == "template-transactions" {
+				decoder.Skip()
+			}
+
 		}
 	}
 
-	if read.accounts != expected.accounts {
-		log.Printf("Read %d accounts when %d were expected", read.accounts, expected.accounts)
+	if read.acts != expected.acts {
+		log.Printf("Read %d accounts when %d were expected", read.acts, expected.acts)
 	}
-	if read.transactions != expected.transactions {
-		log.Printf("Read %d transactions when %d were expected", read.transactions, expected.transactions)
+	if read.trns != expected.trns {
+		log.Printf("Read %d transactions when %d were expected", read.trns, expected.trns)
 	}
 
 	t2 := time.Now()
 	duration := t2.Sub(t1)
-	log.Printf("Gnucash data loaded in %s (%d accounts, %d transactions)", duration, read.accounts, read.transactions)
+	log.Printf("Gnucash data loaded in %s (%d accounts, %d transactions)", duration, read.acts, read.trns)
 
 	if root == nil {
-		return root, index, errors.New("Unable to parse XML file")
+		return root, actIndex, errors.New("Unable to parse XML file")
 	}
-	return root, index, nil
+	return root, actIndex, nil
 }
 
 func stringToFloat(v string) float64 {
