@@ -21,13 +21,12 @@ type xmlCountData struct {
 }
 
 type xmlAccount struct {
-	Name      string `xml:"name"`
-	ID        string `xml:"id"`
-	Type      string `xml:"type"`
-	ParentID  string `xml:"parent"`
-	Commodity string `xml:"commodity>space"`
-	Parent    *xmlAccount
-	Children  []*xmlAccount
+	Name     string `xml:"name"`
+	ID       string `xml:"id"`
+	Type     string `xml:"type"`
+	ParentID string `xml:"parent"`
+	Parent   *xmlAccount
+	Children []*xmlAccount
 }
 
 type xmlTransaction struct {
@@ -42,10 +41,10 @@ type xmlSplit struct {
 }
 
 // LoadFromFile loads data from a GnuCash file compressed or not
-func LoadFromFile(path string) (*Account, map[string]*Account, error) {
+func LoadFromFile(path string) (*Account, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	defer f.Close()
 
@@ -58,14 +57,14 @@ func LoadFromFile(path string) (*Account, map[string]*Account, error) {
 		f.Seek(0, 0)
 		return Load(f)
 	default:
-		return nil, nil, err
+		return nil, err
 	}
 }
 
 // Load loads GnuCash account hierarchy from a XML document
-func Load(r io.Reader) (*Account, map[string]*Account, error) {
+func Load(r io.Reader) (*Account, error) {
 	var root *Account
-	var actIndex map[string]*Account
+	var actsIndex map[string]*Account
 
 	type countData struct {
 		acts int
@@ -83,7 +82,7 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 			if err == io.EOF {
 				break
 			}
-			return nil, nil, err
+			return nil, err
 		}
 
 		switch se := token.(type) {
@@ -100,7 +99,7 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 				case "account":
 					expected.acts = cd.Value
 					// initialize accounts Index
-					actIndex = make(map[string]*Account, expected.acts)
+					actsIndex = make(map[string]*Account, expected.acts)
 				case "transaction":
 					expected.trns = cd.Value
 				}
@@ -116,14 +115,14 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 				if root == nil {
 					if xmlact.Type == "ROOT" && xmlact.Name == "Root Account" {
 						root = &Account{ID: xmlact.ID, Name: xmlact.Name, Type: xmlact.Type}
-						actIndex[xmlact.ID] = root
+						actsIndex[xmlact.ID] = root
 						continue
 					}
-					return root, actIndex, errors.New("Unable to initialize accounts hierarchy with Root Account")
+					return root, errors.New("Unable to initialize accounts hierarchy with Root Account")
 				}
 
 				// Attach this node to the accounts tree
-				parent := actIndex[xmlact.ParentID]
+				parent := actsIndex[xmlact.ParentID]
 				if parent == nil {
 					log.Printf("ParentID not found in index for Account '%s'", xmlact.Name)
 					continue
@@ -131,7 +130,7 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 				act := Account{ID: xmlact.ID, Name: xmlact.Name, Type: xmlact.Type, Parent: parent}
 				parent.Children = append(parent.Children, &act)
 
-				actIndex[xmlact.ID] = &act
+				actsIndex[xmlact.ID] = &act
 				continue
 			}
 
@@ -140,7 +139,7 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 				decoder.DecodeElement(&xtrn, &se)
 				read.trns++
 				for _, split := range xtrn.Splits {
-					act := actIndex[split.Account]
+					act := actsIndex[split.Account]
 					if act == nil {
 						log.Printf("Account '%s' not found in index for transaction", split.Account)
 						continue
@@ -174,9 +173,9 @@ func Load(r io.Reader) (*Account, map[string]*Account, error) {
 	log.Printf("Gnucash data loaded in %s (%d accounts, %d transactions)", duration, read.acts, read.trns)
 
 	if root == nil {
-		return root, actIndex, errors.New("Unable to parse XML file")
+		return root, errors.New("Unable to parse XML file")
 	}
-	return root, actIndex, nil
+	return root, nil
 }
 
 func stringToFloat(v string) float64 {

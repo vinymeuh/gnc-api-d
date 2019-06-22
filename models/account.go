@@ -56,6 +56,15 @@ func (a *Account) Descendants() []*Account {
 	return a.WalkBFS(func(act *Account) bool { return true })
 }
 
+// FindByID returns an accounts matching ID
+func (a *Account) FindByID(ID string) *Account {
+	acts := a.WalkBFS(func(act *Account) bool { return act.ID == ID })
+	if len(acts) == 0 {
+		return nil
+	}
+	return acts[0]
+}
+
 // FindByName returns a list of accounts matching name
 func (a *Account) FindByName(name string) []*Account {
 	return a.WalkBFS(func(act *Account) bool { return act.Name == name })

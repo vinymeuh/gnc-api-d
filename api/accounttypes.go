@@ -13,14 +13,15 @@ import (
 )
 
 type AccountTypesHandler struct {
-	Index map[string]*models.Account
+	Data *models.Account
 }
 
 func (ath *AccountTypesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	types := make(map[string]int)
-	for _, act := range ath.Index {
+	ath.Data.WalkBFS(func(act *models.Account) bool {
 		types[act.Type]++
-	}
+		return true
+	})
 
 	resp, err := json.Marshal(types)
 	if err != nil {

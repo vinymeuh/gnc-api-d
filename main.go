@@ -34,13 +34,13 @@ func main() {
 	// load Gnucash data
 	gncfile := getGnuCashFile()
 	log.Printf("Loading GnuCash file '%s'", gncfile)
-	data, index, err := models.LoadFromFile(gncfile)
+	data, err := models.LoadFromFile(gncfile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// start HTTP server
-	r := api.NewRouter(data, index)
+	r := api.NewRouter(data)
 	addr := getListenAddress()
 	log.Printf("Starting HTTP server on %s", addr)
 	log.Fatal(http.ListenAndServe(addr, r))

@@ -13,13 +13,16 @@ import (
 )
 
 type AccountHandler struct {
-	Account *models.Account
+	Data *models.Account
+	ID   string
 }
 
 func (ah *AccountHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	if ah.Account != nil {
-		resp, err := json.Marshal(ah.Account)
+	act := ah.Data.FindByID(ah.ID)
+
+	if act != nil {
+		resp, err := json.Marshal(act)
 		if err != nil {
 			log.Printf("Unable to marshall all accounts to JSON: %s\n", err)
 			http.Error(w, "Internal server error", http.StatusInternalServerError)

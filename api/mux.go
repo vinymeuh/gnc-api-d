@@ -12,12 +12,11 @@ import (
 )
 
 type Router struct {
-	Data  *models.Account
-	Index map[string]*models.Account
+	Data *models.Account
 }
 
-func NewRouter(data *models.Account, index map[string]*models.Account) *Router {
-	return &Router{Data: data, Index: index}
+func NewRouter(data *models.Account) *Router {
+	return &Router{Data: data}
 }
 
 func (mux *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -46,14 +45,14 @@ func (mux *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		case 3:
 			if path[2] != "" { // /accounts/{:id}
-				h := AccountHandler{Account: mux.Index[path[2]]}
+				h := AccountHandler{Data: mux.Data, ID: path[2]}
 				h.ServeHTTP(w, r)
 				return
 			}
 		}
 	case "accounttypes":
 		if len(path) == 2 { // /accounttypes
-			h := AccountTypesHandler{Index: mux.Index}
+			h := AccountTypesHandler{Data: mux.Data}
 			h.ServeHTTP(w, r)
 			return
 		}

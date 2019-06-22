@@ -10,14 +10,11 @@ import (
 )
 
 func TestLoadGnuCashFile(t *testing.T) {
-	data, index, err := LoadFromFile("testdata/empty.gnucash")
+	data, err := LoadFromFile("testdata/empty.gnucash")
 	if assert.NoError(t, err) {
 		root := data.FindByType("ROOT")
 		assert.Equal(t, 1, len(root), "Problem while retrieve the account of type ROOT")
 		assert.Equal(t, "Root Account", root[0].Name, "Problem while retrieve the Root Account")
-
-		alls := root[0].Descendants()
-		assert.Equal(t, len(index), len(alls), "accounts index is incoherent")
 
 		books := data.FindByName("Books")
 		assert.Equal(t, 1, len(books), "Problem while retrieve the account 'Books'")
@@ -33,11 +30,11 @@ func TestLoadGnuCashFile(t *testing.T) {
 }
 
 func TestLoadInvalidGnuCashFile(t *testing.T) {
-	_, _, err := LoadFromFile("gnucashfile_test.go")
+	_, err := LoadFromFile("gnucashfile_test.go")
 	assert.Error(t, err)
 }
 
 func TestLoadNotExistingFile(t *testing.T) {
-	_, _, err := LoadFromFile("i_do_not_exist")
+	_, err := LoadFromFile("i_do_not_exist")
 	assert.Error(t, err)
 }
