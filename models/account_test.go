@@ -15,11 +15,11 @@ func TestAccount(t *testing.T) {
 		Name: "Dummy Account",
 		Type: "ROOT",
 		Transactions: []*Transaction{
-			&Transaction{Date: "2019-01-01", Value: 1000.0},
-			&Transaction{Date: "2019-01-02", Value: -9.5, Num: "X"},
-			&Transaction{Date: "2019-01-03", Value: -0.5, Num: "X"},
-			&Transaction{Date: "2019-02-01", Value: 1000.0},
-			&Transaction{Date: "2019-02-03", Value: -500.0},
+			{Date: "2019-01-01", Value: 1000.0},
+			{Date: "2019-01-02", Value: -9.5, Num: "X"},
+			{Date: "2019-01-03", Value: -0.5, Num: "X"},
+			{Date: "2019-02-01", Value: 1000.0},
+			{Date: "2019-02-03", Value: -500.0},
 		},
 	}
 
