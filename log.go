@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+func getLogFilePath() string {
+	return os.Getenv("LOG_FILE_PATH")
+}
+
 type writer struct {
 	io.Writer
 }
@@ -18,7 +22,7 @@ func (w writer) Write(b []byte) (n int, err error) {
 	return w.Writer.Write(append([]byte(time.Now().Format("2006-01-02T15:04:05-07:00 ")), b...))
 }
 
-func setupLogFile() {
+func setupLog() {
 	log.SetFlags(log.Lshortfile)
 	log.SetOutput(writer{os.Stdout})
 	if logFilePath := getLogFilePath(); logFilePath != "" {

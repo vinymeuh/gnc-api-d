@@ -12,10 +12,6 @@ import (
 	"github.com/vinymeuh/gnc-api-d/models"
 )
 
-func getLogFilePath() string {
-	return os.Getenv("LOG_FILE_PATH")
-}
-
 func getListenAddress() string {
 	addr := os.Getenv("LISTEN_ADDRESS")
 	if addr == "" {
@@ -25,22 +21,27 @@ func getListenAddress() string {
 }
 
 func getGnuCashFile() string {
-	return os.Getenv("GNUCASH_FILE_PATH")
+	file := os.Getenv("GNUCASH_FILE_PATH")
+	if file == "" {
+		log.Printf("variable GNUCASH_FILE_PATH is not defined")
+		os.Exit(1)
+	}
+	return file
 }
 
 func main() {
-	setupLogFile()
+	setupLog()
 
 	// load Gnucash data
 	gncfile := getGnuCashFile()
 	log.Printf("Loading GnuCash file '%s'", gncfile)
-	data, err := models.LoadFromFile(gncfile)
+	root, err := models.LoadFromFile(gncfile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// start HTTP server
-	r := api.NewRouter(data)
+	r := api.NewRouter(root)
 	addr := getListenAddress()
 	log.Printf("Starting HTTP server on %s", addr)
 	log.Fatal(http.ListenAndServe(addr, r))
