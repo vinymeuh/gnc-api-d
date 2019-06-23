@@ -53,7 +53,7 @@ func (a *Account) WalkBFS(walkFunc WalkAccountFunc) []*Account {
 
 // Descendants return the list of sub-accounts for an account
 func (a *Account) Descendants() []*Account {
-	return a.WalkBFS(func(act *Account) bool { return true })
+	return a.WalkBFS(func(act *Account) bool { return true })[1:]
 }
 
 // FindByID returns an accounts matching ID

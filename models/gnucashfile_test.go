@@ -21,11 +21,9 @@ func TestLoadGnuCashFile(t *testing.T) {
 
 		books := data.FindByName("Books")
 		assert.Equal(t, 1, len(books), "Problem while retrieve the account 'Books'")
-
 		actBooks := books[0]
 		assert.Equal(t, "97c2d5b268164b479944e221ae0267f1", actBooks.ID, "Problem with 'Books' account ID")
 		assert.Equal(t, 1, len(actBooks.Transactions), "Problem with 'Books' account transactions")
-
 		trnBooks := actBooks.Transactions[0]
 		assert.Equal(t, "2019-06-10", trnBooks.Date, "Problem with 'Books' transaction date")
 		assert.Equal(t, 30.05, trnBooks.Value, "Problem with 'Books' transaction value")

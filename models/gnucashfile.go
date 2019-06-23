@@ -62,6 +62,7 @@ func LoadFromFile(path string) (*Account, error) {
 }
 
 // Load loads GnuCash account hierarchy from a XML document
+// Returns a pointer to the root account of the hierarchy
 func Load(r io.Reader) (*Account, error) {
 	var root *Account
 	var actsIndex map[string]*Account
