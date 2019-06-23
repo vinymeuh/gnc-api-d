@@ -4,6 +4,11 @@
 package models
 
 import (
+	"bytes"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,6 +33,25 @@ func TestLoadGnuCashFile(t *testing.T) {
 		assert.Equal(t, "2019-06-10", trnBooks.Date, "Problem with 'Books' transaction date")
 		assert.Equal(t, 30.05, trnBooks.Value, "Problem with 'Books' transaction value")
 	}
+}
+
+func TestLoadCompressedGnuCashFile(t *testing.T) {
+	_, file, _, _ := runtime.Caller(0)
+	cwd := filepath.Dir(file)
+
+	gzfile := "testdata/empty.gnucash.gz"
+	defer os.RemoveAll(gzfile)
+
+	cmd := exec.Command("gzip", "-k", "testdata/empty.gnucash")
+	cmd.Dir = cwd
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	if err := cmd.Run(); err != nil {
+		assert.FailNow(t, "Unable to compress testdata/empty.gnucash", stderr.String())
+	}
+
+	_, err := LoadFromFile(gzfile)
+	assert.NoError(t, err, "Unable to read compressed Gnucash File", err)
 }
 
 func TestLoadInvalidGnuCashFile(t *testing.T) {
