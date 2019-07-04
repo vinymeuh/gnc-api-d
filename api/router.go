@@ -11,15 +11,17 @@ import (
 	"github.com/vinymeuh/gnc-api-d/models"
 )
 
+// Router will send incoming requests to dedicated handler
 type Router struct {
-	Data *models.Account
+	root *models.Account
 }
 
-func NewRouter(data *models.Account) *Router {
-	return &Router{Data: data}
+// NewRouter returns a new Router instance
+func NewRouter(root *models.Account) *Router {
+	return &Router{root: root}
 }
 
-func (mux *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s %s", r.Method, r.URL.RequestURI())
 
 	if r.Method != "GET" {
@@ -29,30 +31,35 @@ func (mux *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// returns api documentation
 	if r.URL.Path == "/" {
-		w.Header().Set("content-type", "application/json")
-		w.Write([]byte(`{"status": "ok"}`))
+		//w.Header().Set("content-type", "application/json")
+		w.Write([]byte("/accounts\n"))
+		w.Write([]byte("/accounts/{id}\n"))
+		w.Write([]byte("/accountypes\n"))
+		w.Write([]byte("/balance\n"))
 		return
 	}
 
+	// main routing
 	path := strings.Split(r.URL.Path, "/")
 	switch path[1] {
 	case "accounts":
 		switch len(path) {
 		case 2: // /accounts
-			h := AccountsHandler{Data: mux.Data}
+			h := AccountsHandler{Data: router.root}
 			h.ServeHTTP(w, r)
 			return
 		case 3:
 			if path[2] != "" { // /accounts/{:id}
-				h := AccountHandler{Data: mux.Data, ID: path[2]}
+				h := AccountHandler{Data: router.root, ID: path[2]}
 				h.ServeHTTP(w, r)
 				return
 			}
 		}
 	case "accounttypes":
 		if len(path) == 2 { // /accounttypes
-			h := AccountTypesHandler{Data: mux.Data}
+			h := AccountTypesHandler{Data: router.root}
 			h.ServeHTTP(w, r)
 			return
 		}
