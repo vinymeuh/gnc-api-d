@@ -17,12 +17,19 @@ var routesToTest = []struct {
 	path   string
 	status int
 }{
+	// OK
 	{"GET", "/", http.StatusOK},
 	{"GET", "/accounts", http.StatusOK},
+	{"GET", "/accounts/0", http.StatusOK},
 	{"GET", "/accounttypes", http.StatusOK},
 	{"GET", "/balance", http.StatusOK},
+	// Not Found
 	{"GET", "/not-exists", http.StatusNotFound},
+	// Not Allowed
 	{"POST", "/", http.StatusMethodNotAllowed},
+	// Bad Request
+	{"GET", "/accounts/0/1", http.StatusBadRequest},
+	{"GET", "/accounttypes/0", http.StatusBadRequest},
 }
 
 func TestRoutes(t *testing.T) {

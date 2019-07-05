@@ -33,11 +33,7 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// returns api documentation
 	if r.URL.Path == "/" {
-		//w.Header().Set("content-type", "application/json")
-		w.Write([]byte("/accounts\n"))
-		w.Write([]byte("/accounts/{id}\n"))
-		w.Write([]byte("/accountypes\n"))
-		w.Write([]byte("/balance\n"))
+		home(w, r)
 		return
 	}
 
@@ -56,11 +52,22 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				h.ServeHTTP(w, r)
 				return
 			}
+		default:
+			log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 Bad Request"))
+			return
 		}
 	case "accounttypes":
-		if len(path) == 2 { // /accounttypes
+		switch len(path) {
+		case 2: // /accounttypes
 			h := AccountTypesHandler{Data: router.root}
 			h.ServeHTTP(w, r)
+			return
+		default:
+			log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 Bad Request"))
 			return
 		}
 	case "balance":
