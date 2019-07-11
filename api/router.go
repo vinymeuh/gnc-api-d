@@ -42,16 +42,10 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch path[1] {
 	case "accounts":
 		switch len(path) {
-		case 2: // /accounts
+		case 2, 3: // /accounts or /accounts/{:id}
 			h := AccountsHandler{Data: router.root}
 			h.ServeHTTP(w, r)
 			return
-		case 3:
-			if path[2] != "" { // /accounts/{:id}
-				h := AccountHandler{Data: router.root, ID: path[2]}
-				h.ServeHTTP(w, r)
-				return
-			}
 		default:
 			log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
 			w.WriteHeader(http.StatusBadRequest)
