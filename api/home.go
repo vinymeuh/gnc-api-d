@@ -11,5 +11,5 @@ func home(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/accounts\n"))
 	w.Write([]byte("/accounts/{id}\n"))
 	w.Write([]byte("/accountypes\n"))
-	w.Write([]byte("/balance\n"))
+	w.Write([]byte("/balance/{id}\n"))
 }

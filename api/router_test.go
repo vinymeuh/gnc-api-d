@@ -22,7 +22,7 @@ var routesToTest = []struct {
 	{"GET", "/accounts", http.StatusOK},
 	{"GET", "/accounts/0", http.StatusOK},
 	{"GET", "/accounttypes", http.StatusOK},
-	{"GET", "/balance", http.StatusOK},
+	{"GET", "/balance/0", http.StatusOK},
 	// Not Found
 	{"GET", "/not-exists", http.StatusNotFound},
 	// Not Allowed
@@ -30,6 +30,7 @@ var routesToTest = []struct {
 	// Bad Request
 	{"GET", "/accounts/0/1", http.StatusBadRequest},
 	{"GET", "/accounttypes/0", http.StatusBadRequest},
+	{"GET", "/balance", http.StatusBadRequest},
 }
 
 func TestRoutes(t *testing.T) {

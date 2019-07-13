@@ -26,7 +26,7 @@ func (ath *AccountTypesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	resp, err := json.Marshal(types)
 	if err != nil {
 		log.Printf("Unable to marshall all accounts to JSON: %s\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		httpInternalServerError(w, r)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

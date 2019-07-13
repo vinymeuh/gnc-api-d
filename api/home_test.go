@@ -25,6 +25,6 @@ func TestHome(t *testing.T) {
 	}
 	res.Body.Close()
 
-	want := "/accounts\n/accounts/{id}\n/accountypes\n/balance\n"
+	want := "/accounts\n/accounts/{id}\n/accountypes\n/balance/{id}\n"
 	assert.Equal(t, want, string(body), "Response body is wrong.")
 }

@@ -25,9 +25,7 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s %s", r.Method, r.URL.RequestURI())
 
 	if r.Method != "GET" {
-		w.Header().Add("Allow", "GET")
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte("405 Method Not Allowed"))
+		httpMethodNotAllowed(w, r)
 		return
 	}
 
@@ -45,33 +43,29 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case 2, 3: // /accounts or /accounts/{:id}
 			h := AccountsHandler{Data: router.root}
 			h.ServeHTTP(w, r)
-			return
 		default:
-			log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("400 Bad Request"))
-			return
+			httpBadRequest(w, r)
 		}
+		return
 	case "accounttypes":
 		switch len(path) {
 		case 2: // /accounttypes
 			h := AccountTypesHandler{Data: router.root}
 			h.ServeHTTP(w, r)
-			return
 		default:
-			log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("400 Bad Request"))
-			return
+			httpBadRequest(w, r)
 		}
+		return
 	case "balance":
-		if len(path) == 2 { // /balance
-			log.Printf("not yet implemented")
-			return
+		switch len(path) {
+		case 3: // /balance/{:id}
+			h := BalanceHandler{Data: router.root}
+			h.ServeHTTP(w, r)
+		default:
+			httpBadRequest(w, r)
 		}
+		return
 	}
 
-	log.Printf("%s %s 404 Not Found", r.Method, r.URL.Path)
-	w.WriteHeader(http.StatusNotFound)
-	w.Write([]byte("404 Not Found"))
+	httpNotFound(w, r)
 }

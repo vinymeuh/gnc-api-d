@@ -25,14 +25,12 @@ func (ah *AccountsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case 3:
 		id := path[2]
 		if id == "" {
-			log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
-			http.Error(w, "Bad Request", http.StatusBadRequest)
+			httpBadRequest(w, r)
 			return
 		}
 		ah.serveAccountByID(w, r, id)
 	default:
-		log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		httpBadRequest(w, r)
 	}
 }
 
@@ -53,15 +51,14 @@ func (ah *AccountsHandler) serveAccountsByNameOrType(w http.ResponseWriter, r *h
 	}
 
 	if acts == nil {
-		log.Printf("%s %s 400 Bad Request", r.Method, r.URL.Path)
-		http.Error(w, "Bad Request", http.StatusBadRequest)
+		httpBadRequest(w, r)
 		return
 	}
 
 	resp, err := json.Marshal(acts)
 	if err != nil {
 		log.Printf("Unable to marshall all accounts to JSON: %s\n", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		httpInternalServerError(w, r)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -74,13 +71,12 @@ func (ah *AccountsHandler) serveAccountByID(w http.ResponseWriter, r *http.Reque
 		resp, err := json.Marshal(act)
 		if err != nil {
 			log.Printf("Unable to marshall all accounts to JSON: %s\n", err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			httpInternalServerError(w, r)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, "%s", resp)
 		return
 	}
-	log.Printf("%s %s 404 Not Found", r.Method, r.URL.Path)
-	http.Error(w, "Not Found", http.StatusNotFound)
+	httpNotFound(w, r)
 }
