@@ -82,8 +82,14 @@ type BalanceOptions struct {
 	Type string
 }
 
+// Balance is the type used to return result for the Balance function
+type Balance struct {
+	Date  string
+	Value float64
+}
+
 // Balance returns the amount of the account
-func (a *Account) Balance(opts BalanceOptions) float64 {
+func (a *Account) Balance(opts BalanceOptions) Balance {
 
 	if opts.To == "" {
 		opts.To = time.Now().Format("2006-01-02")
@@ -98,5 +104,5 @@ func (a *Account) Balance(opts BalanceOptions) float64 {
 			b = b + t.Value
 		}
 	}
-	return b
+	return Balance{Date: opts.To, Value: b}
 }
