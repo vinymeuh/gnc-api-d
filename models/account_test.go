@@ -9,6 +9,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var accountBalanceTests = []struct {
+	options		BalanceOptions
+	expected 	float64
+	errmsg  	string
+}{
+	{BalanceOptions{}, 1490.0, "Non recursive current Balance is incorrect"},
+	{BalanceOptions{Recursive: true}, 1374.5, "Recursive current Balance is incorrect"},
+	{BalanceOptions{To: "2019-01-03"}, 990.0, "Balance at a defined Date is incorrect"},
+	{BalanceOptions{From: "2019-01-03", To: "2019-02-03"}, 499.5, "Balance between 2 Dates is incorrect"},
+	{BalanceOptions{Type: "X"}, -10.0, "Current Balance for a defined Type is incorrect"},
+}
+
 func TestAccount(t *testing.T) {
 	acts := Account{
 		ID:   "0",
@@ -55,8 +67,7 @@ func TestAccount(t *testing.T) {
 	children := root.Descendants()
 	assert.Equal(t, 2, len(children), "Problem with root account descendants")
 
-	assert.Equal(t, 1490.0, root.Balance(BalanceOptions{}).Value, "current Balance is incorrect")
-	assert.Equal(t, 990.0, root.Balance(BalanceOptions{To: "2019-01-03"}).Value, "Balance at a defined Date is incorrect")
-	assert.Equal(t, 499.5, root.Balance(BalanceOptions{From: "2019-01-03", To: "2019-02-03"}).Value, "Balance between 2 Dates is incorrect")
-	assert.Equal(t, -10.0, root.Balance(BalanceOptions{Type: "X"}).Value, "current Balance for a defined Type is incorrect")
+	for _, tt := range accountBalanceTests {
+		assert.Equal(t, tt.expected, root.Balance(tt.options).Value, tt.errmsg)
+	}
 }

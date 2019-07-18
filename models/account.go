@@ -77,9 +77,10 @@ func (a *Account) FindByType(atype string) []*Account {
 
 // BalanceOptions is the type used as input parameters for the Balance function
 type BalanceOptions struct {
-	From string
-	To   string
-	Type string
+	From      string
+	To        string
+	Type      string
+	Recursive bool
 }
 
 // Balance is the type used to return result for the Balance function
@@ -96,6 +97,7 @@ func (a *Account) Balance(opts BalanceOptions) Balance {
 	}
 
 	var b float64
+	// transactions directly attached to the account
 	for _, t := range a.Transactions {
 		if opts.Type != "" && t.Num != opts.Type {
 			continue
@@ -104,5 +106,12 @@ func (a *Account) Balance(opts BalanceOptions) Balance {
 			b = b + t.Value
 		}
 	}
+	// transactions on sub-accounts
+	if opts.Recursive {
+		for _, sa := range a.Children {
+			b = b + sa.Balance(opts).Value
+		}
+	}
+
 	return Balance{Date: opts.To, Value: b}
 }
